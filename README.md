@@ -16,6 +16,70 @@ Este repositorio documenta el proceso de **instalación**, **configuración inic
 
 ---
 
+**A continuación tenemos 2 opciones para ejecutar el servidor de Jenkis localmente:**
+
+  1. Usando un contenedor de docker bajando la imagén oficial de Docker Hub en su versión Blue Ocean.
+  2. Descargando y ejecutando directamente en nuestra maquina el servidor bajado desde la pagina oficial de Jenkins.
+
+<br><br>
+
+# Versión 1. Imagen de Jenkis en Docker Hub
+
+Usando un contenedor de docker con la imagén de Jenkis disponible en Docker Hub y en su versión Blue Ocean.
+
+
+## Paso 1: Construir imagén del contenedor de docker
+
+Ubicados en el directorio dónde tenemos nuestro Archivo Dockerfile, ejecutamos el siguiente comando para construir la imagén de nuestro servidor Jenkis.
+
+```
+docker build -t myjenkins-blueocean:2.452.1 .
+```
+
+## Paso 2: Crear una red llamada 'jenkins'
+```
+docker network create jenkins
+```
+
+## Paso 3: Ejecutar el contenedor
+
+### MacOS / Linux
+```
+docker run --name jenkins-blueocean --restart=on-failure --detach \
+  --network jenkins --env DOCKER_HOST=tcp://docker:2376 \
+  --env DOCKER_CERT_PATH=/certs/client --env DOCKER_TLS_VERIFY=1 \
+  --publish 8080:8080 --publish 50000:50000 \
+  --volume jenkins-data:/var/jenkins_home \
+  --volume jenkins-docker-certs:/certs/client:ro \
+  myjenkins-blueocean:2.452.1
+```
+
+### Windows
+```
+docker run --name jenkins-blueocean --restart=on-failure --detach `
+  --network jenkins --env DOCKER_HOST=tcp://docker:2376 `
+  --env DOCKER_CERT_PATH=/certs/client --env DOCKER_TLS_VERIFY=1 `
+  --volume jenkins-data:/var/jenkins_home `
+  --volume jenkins-docker-certs:/certs/client:ro `
+  --publish 8080:8080 --publish 50000:50000 myjenkins-blueocean:2.452.1
+```
+
+## Paso 4: Obtener la contraseña
+```
+docker exec jenkins-blueocean cat /var/jenkins_home/secrets/initialAdminPassword
+```
+
+## Paso 5: Conectarse a Jenkis
+```
+https://localhost:8080/
+```
+
+<br><br>
+
+# Versión 2. Versión local y nativa
+
+Usando la versión nativa y ejecutada localmente sin usar Docker.
+
 ## Paso 1: Instalar Java
 
 Jenkins necesita Java para ejecutarse. Puedes instalar OpenJDK 11 (recomendado):
